@@ -1,36 +1,39 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# [Title]
 
-## Getting Started
+This application gives teachers direct access to each individual child's understanding via efficient mini-surveys applied on-demand (or automatically) to each student, minimizing disruptions while maximizing mutual understanding between the student-teacher dynamic.
 
-First, run the development server:
+# Setup
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+To begin, the teacher establishes a session from one of the pre-made templates (or configures a custom one). Regardless of input, a  The default templates include:
+
+1. Hardcoded - The teacher manually picks questions and answers and picks when to trigger them. They may do this immediately after the initial menu. *
+
+2. Automatic - The teacher selects an interval (eg 5 minutes) for which an LLM is asked based on transcripts whether to ask a question, if it decides so, it'll prompt all students and redirect all the data to the master device. This utilizes the master device's microphone.
+
+# Stack
+
+We use TypeScript on Next.JS with React, Tailwind and shadcn/ui. Both the master and user devices run in the browser.
+
+We will also utilize Postgres and Supabase alongside Vercel alongside a custom domain to host it.
+
+## Automatic
+
+We use `VibeVoice-ASR-Streaming-1.5B-Q8_K` hosted online to form a transcript, taking the master device's microphone as input. The generated transcript is later processed at the set interval and fed into an LLM that decides whether to trigger a mini-quiz or not via structured JSON output.
+
+```mermaid
+flowchart TD
+    subgraph MDS[Master Device Schema]
+
+        MD{Master Device} -- PIN --> D0[Device 0]
+        MD -- PIN --> D1[Device 1]
+        MD -- PIN --> D2[Device 2]
+
+        subgraph MDFLOW[Master Device Flow]
+            MD -- Microphone --> MODEL(Model)
+            MODEL -- Transcript --> LLM
+            LLM -- JSON Schema --> QUIZ(Mini-Quiz)
+            QUIZ --> USER(User Devices)
+            USER -- Answers --> MD
+        end
+    end
 ```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
