@@ -1,3 +1,5 @@
+import { SetupWizard } from "@/components/setup/setup-wizard";
+
 export default function Home() {
-    return <div className="p-6">Session setup — coming in Phase 2.</div>;
+    return <SetupWizard/>;
 }

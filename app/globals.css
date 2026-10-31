@@ -161,3 +161,20 @@
     from { mask-position: 0 100%; }
     to   { mask-position: 0 0; }
 }
+@keyframes tile-in {
+    from { opacity: 0; transform: scale(0.92); }
+    to   { opacity: 1; transform: scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 1ms !important;
+        animation-delay: 0ms !important;
+        transition-duration: 1ms !important;
+    }
+}
+
+@keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 0 0 0 color-mix(in oklch, var(--glow) 55%, transparent); }
+    50%      { box-shadow: 0 0 0 10px color-mix(in oklch, var(--glow) 0%, transparent); }
+}

@@ -21,15 +21,15 @@ changes; see `AGENTS.md`).
 - [x] `npm run lint` and `npm run build` pass.
 
 ## Phase 2 — Panel 0 (template tiles)
-- [ ] The rhombus pattern, four tiles, colors matched to `design.png`, and shared-edge coloring (hover/selected/blend).
-- [ ] Keyboard navigation, mobile layout, and the choice persisted to `localStorage`.
+- [x] The rhombus pattern, four tiles, colors matched to `design.png`, and shared-edge coloring (hover/selected/blend).
+- [x] Keyboard navigation, mobile layout, and the choice persisted to `localStorage`.
 
 ## Phase 3 — Panels 1 and 2 and the question builder
-- [ ] A config schema (zod) with the four templates as presets.
-- [ ] The question builder: MC / TF / Number, correct answers, limits, time override, the "On timeline" toggle,
+- [x] A config schema (zod) with the four templates as presets.
+- [x] The question builder: MC / TF / Number, correct answers, limits, time override, the "On timeline" toggle,
       reordering.
-- [ ] Panel 1 per template; Panel 2 with Questions, AI and Advanced sections; Worriless's big Continue button.
-- [ ] Everything persisted to `localStorage`.
+- [x] Panel 1 per template; Panel 2 with Questions, AI and Advanced sections; Worriless's big Continue button.
+- [x] Everything persisted to `localStorage`.
 
 ## Phase 4 — Realtime room and joining
 - [ ] A `party/` partyserver room: host token, presence, snapshot, message types (spec §11).
