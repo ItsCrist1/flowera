@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 
 /** Top-level navigation. Add a tab here and it shows up in both the top bar and the sidebar. */
 export const tabs = [
-    { href: "/", label: "Session", icon: Sparkles, match: (p: string) => p === "/" },
+    { href: "/", label: "Session", icon: Sparkles, match: (p: string) => p === "/" || p.startsWith("/host") },
     { href: "/join", label: "Join", icon: LogIn, match: (p: string) => p.startsWith("/join") },
     { href: "/history", label: "History", icon: History, match: (p: string) => p.startsWith("/history") },
 ] satisfies { href: string; label: string; icon: LucideIcon; match: (pathname: string) => boolean }[];

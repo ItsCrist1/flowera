@@ -122,7 +122,7 @@ export const llmConfigSchema = z.object({
     trigger: llmTriggerSchema.default("llm_decides"),
     requireApproval: z.boolean().default(false),
     systemPrompt: z.string().default(""),
-    provider: providerIdSchema.default("llm7"),
+    provider: providerIdSchema.default("kilo"),
     model: z.string().default(""),
     checkIntervalMin: z.number().min(0).default(5),
     language: lessonLanguageSchema.default("ro"),
@@ -249,6 +249,8 @@ export const hostSessionSchema = z.object({
     resumedAt: z.number().nullable(),
     /** Last wall-clock moment the host tab was known to be alive (for reload recovery). */
     heartbeatAt: z.number(),
+    /** Highest room event sequence number already applied (events are replayed after reconnects). */
+    lastEventSeq: z.number().default(0),
     students: z.record(z.string(), studentSchema),
     asked: z.array(askedQuestionSchema),
     activeId: z.string().nullable(),

@@ -137,7 +137,7 @@ export function slicesFor(aq: Pick<AskedQuestion, "question" | "answers" | "elig
                 if (value.type !== "number") continue;
                 if (value.value < q.correctMin) bump("below", `Below ${formatNumber(q.correctMin)}`, false);
                 else if (value.value > q.correctMax) bump("above", `Above ${formatNumber(q.correctMax)}`, false);
-                else bump("in", `In range (${describeCorrect(q)})`, true);
+                else bump("in", q.correctMin === q.correctMax ? `Correct (${describeCorrect(q)})` : `In range (${describeCorrect(q)})`, true);
             }
             break;
     }

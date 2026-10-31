@@ -25,6 +25,7 @@ export function createHostSession(config: SessionConfig): HostSession {
         activeMs: 0,
         resumedAt: null,
         heartbeatAt: now,
+        lastEventSeq: 0,
         students: {},
         asked: [],
         activeId: null,

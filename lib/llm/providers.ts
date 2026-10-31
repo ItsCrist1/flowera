@@ -33,7 +33,7 @@ export const PROVIDERS: Record<ProviderId, ProviderDef> = {
         baseUrl: "https://api.llm7.io/v1",
         viaProxy: false,
         defaultModel: "gpt-oss:20b",
-        rateLimitNote: "About 30 requests per minute per network.",
+        rateLimitNote: "Small daily quota without a key; best as a backup.",
         parseModels: (json) => {
             const list = (json as { data?: Llm7Model[] })?.data ?? [];
             return list
@@ -62,7 +62,7 @@ export const PROVIDERS: Record<ProviderId, ProviderDef> = {
     },
 };
 
-export const PROVIDER_ORDER: ProviderId[] = ["llm7", "kilo"];
+export const PROVIDER_ORDER: ProviderId[] = ["kilo", "llm7"];
 
 const modelCache = new Map<ProviderId, { at: number; models: ProviderModel[] }>();
 

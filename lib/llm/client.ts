@@ -48,7 +48,7 @@ export async function chatCompletion(opts: {
             const j = JSON.parse(text);
             detail = j?.error?.message ?? j?.error ?? detail;
         } catch { /* keep raw */ }
-        if (res.status === 429) throw new LlmError(`${def.name} rate limit reached. ${def.rateLimitNote}`, 429);
+        if (res.status === 429) throw new LlmError(`${def.name} limit reached: ${detail} ${def.rateLimitNote}`.trim(), 429);
         throw new LlmError(`${def.name} error ${res.status}: ${detail}`, res.status);
     }
 

@@ -1,22 +1,17 @@
-/** Answer-option colors, shared by the editor, the student answer buttons and the charts. */
-export const OPTION_COLORS = [
-    "oklch(0.63 0.22 25)",   // red
-    "oklch(0.6 0.2 255)",    // blue
-    "oklch(0.75 0.17 85)",   // amber
-    "oklch(0.64 0.18 150)",  // green
-    "oklch(0.6 0.22 305)",   // purple
-    "oklch(0.7 0.15 200)",   // cyan
-    "oklch(0.68 0.2 350)",   // pink
-    "oklch(0.62 0.13 60)",   // brown
-] as const;
+/*
+ * Categorical colors for answer options and chart slices. Values live in app/globals.css
+ * (--series-1…8) with separate light/dark steps, validated for color-vision deficiency.
+ * Assigned in fixed order, never cycled: option 1 is always series 1, everywhere.
+ * Three light-mode hues are under 3:1 against white, so charts always carry text labels.
+ */
+export const OPTION_COLORS = Array.from({ length: 8 }, (_, i) => `var(--series-${i + 1})`);
 
+/** Secondary encoding so options never rely on color alone. */
 export const OPTION_SHAPES = ["▲", "◆", "●", "■", "★", "⬟", "⬢", "✚"] as const;
 
-export const CORRECT_COLOR = "oklch(0.66 0.18 150)";
-export const WRONG_COLOR = "oklch(0.63 0.22 25)";
-export const NEUTRAL_COLOR = "oklch(0.6 0 0 / 0.35)";
+/** "Not answered" is always neutral gray. */
+export const NOT_ANSWERED_COLOR = "var(--series-none)";
 
-/** A stable color for an arbitrary chart slice. */
 export function sliceColor(index: number) {
-    return OPTION_COLORS[index % OPTION_COLORS.length];
+    return OPTION_COLORS[Math.min(index, OPTION_COLORS.length - 1)];
 }

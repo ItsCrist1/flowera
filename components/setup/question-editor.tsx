@@ -140,7 +140,7 @@ function MultipleChoiceBody({ q, onChange }: { q: Extract<Question, { type: "mul
                                     <button type="button" onClick={() => toggleCorrect(i)} aria-pressed={correct}
                                             aria-label={correct ? `Option ${i + 1} is correct` : `Mark option ${i + 1} correct`}
                                             className={cn("grid w-9 cursor-pointer place-items-center transition-colors",
-                                                correct ? "bg-[oklch(0.66_0.18_150)] text-white" : "text-muted-foreground hover:bg-muted")}>
+                                                correct ? "bg-[#0ca30c] text-white" : "text-muted-foreground hover:bg-muted")}>
                                         <Check className="size-4"/>
                                     </button>
                                 }/>
@@ -178,8 +178,7 @@ function TrueFalseBody({ q, onChange }: { q: Extract<Question, { type: "true_fal
                 {[true, false].map(v => (
                     <button key={String(v)} type="button" onClick={() => onChange({ ...q, correct: v })} aria-pressed={q.correct === v}
                             className={cn("flex h-11 cursor-pointer items-center justify-center gap-2 border text-sm font-medium transition-colors",
-                                q.correct === v ? "border-transparent text-white" : "border-input text-muted-foreground hover:bg-muted")}
-                            style={q.correct === v ? { background: v ? OPTION_COLORS[1] : OPTION_COLORS[0] } : undefined}>
+                                q.correct === v ? "border-transparent bg-primary text-primary-foreground" : "border-input text-muted-foreground hover:bg-muted")}>
                         {q.correct === v && <Check className="size-4"/>}{v ? "True" : "False"}
                     </button>
                 ))}

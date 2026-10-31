@@ -6,7 +6,12 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "party:dev": "wrangler dev -c party/wrangler.jsonc --port 8799",
+    "party:deploy": "wrangler deploy -c party/wrangler.jsonc",
+    "party:check": "tsc -p party/tsconfig.json",
+    "asr:gateway": "node asr-server/gateway.mjs",
+    "check": "tsc --noEmit && npm run party:check && eslint"
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",
