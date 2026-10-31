@@ -136,8 +136,8 @@
         animation-duration: 450ms;
         animation-timing-function: cubic-bezier(.2, .8, .2, 1);
     }
-    ::view-transition-group(nav-tab-evals)   { animation-delay: 40ms; }
-    ::view-transition-group(nav-tab-results) { animation-delay: 80ms; }
+    ::view-transition-group(nav-tab-join)    { animation-delay: 40ms; }
+    ::view-transition-group(nav-tab-history) { animation-delay: 80ms; }
 }
 
 @media (prefers-reduced-motion: no-preference) {

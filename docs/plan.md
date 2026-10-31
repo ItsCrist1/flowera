@@ -7,18 +7,18 @@ Before writing Next.js code, read the relevant guide in `node_modules/next/dist/
 changes; see `AGENTS.md`).
 
 ## Phase 0 — ASR feasibility on the RX 9070 XT (do first, it de-risks everything)
-- [ ] Build audio.cpp with `--backend hip`; fall back to `vulkan` if HIP fails.
-- [ ] Download `cstr/vibevoice-asr-GGUF` → `vibevoice-asr-q8_0.gguf`.
-- [ ] Transcribe English and Romanian samples. Record the real-time factor, VRAM use, and quality by eye.
-- [ ] Confirm nothing (audio or temp files) is written to disk during transcription.
-- [ ] Write the results into `docs/asr/phase0.md`. If it fails, stop and report before going further.
+- [x] Build audio.cpp with `--backend hip`; fall back to `vulkan` if HIP fails.
+- [x] Download the model. The cstr GGUF didn't work; audio.cpp's own `audio-cpp/audio.cpp-gguf` package did.
+- [x] Transcribe English and Romanian samples. Record the real-time factor, VRAM use, and quality by eye.
+- [x] Confirm nothing (audio or temp files) is written to disk during transcription.
+- [x] Write the results into `docs/asr/phase0.md`. If it fails, stop and report before going further.
 
 ## Phase 1 — Cleanup and skeleton
-- [ ] Remove Auth.js, Drizzle/Postgres, `/api/models`, the old `/api/llm`, the provider and chat tables, and the
+- [x] Remove Auth.js, Drizzle/Postgres, `/api/models`, the old `/api/llm`, the provider and chat tables, and the
       unused dependencies and env vars.
-- [ ] Fix the doubled flex wrapper in `layout.tsx`; update the metadata.
-- [ ] New tabs: New session `/`, Join `/join`, History `/history`; placeholder pages.
-- [ ] `npm run lint` and `npm run build` pass.
+- [x] Fix the doubled flex wrapper in `layout.tsx`; update the metadata.
+- [x] New tabs: New session `/`, Join `/join`, History `/history`; placeholder pages.
+- [x] `npm run lint` and `npm run build` pass.
 
 ## Phase 2 — Panel 0 (template tiles)
 - [ ] The rhombus pattern, four tiles, colors matched to `design.png`, and shared-edge coloring (hover/selected/blend).

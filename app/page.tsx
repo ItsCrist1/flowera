@@ -1,7 +1,3 @@
-export default async function Home() {
-    return (
-        <div className="flex flex-row gap-10 p-4">
-
-        </div>
-    );
+export default function Home() {
+    return <div className="p-6">Session setup — coming in Phase 2.</div>;
 }

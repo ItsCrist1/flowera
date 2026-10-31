@@ -1,5 +1,4 @@
 import { ThemeToggle } from "@/components/theme/theme-toggle";
-import LoginButton from "@/components/auth/auth";
 import { NavTabs } from "@/components/nav/nav-tabs";
 import {OrientationToggle} from "@/components/nav/orientation-toggle";
 import Image from "next/image";
@@ -19,7 +18,6 @@ export function TopBar() {
             <div className="flex shrink-0 items-center gap-4">
                 <OrientationToggle orientation="horizontal"/>
                 <ThemeToggle/>
-                <LoginButton/>
             </div>
         </header>
     );
