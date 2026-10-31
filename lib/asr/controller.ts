@@ -118,8 +118,9 @@ export class AsrController {
                 return;
             }
         }
+        const recovered = this.status.warning !== null;
         this.set({ backend: "gpu", listening: true, warning: null });
-        this.opts.onWarning?.(null);
+        if (recovered) this.opts.onWarning?.(null);
     }
 
     private track(p: Promise<void>) {

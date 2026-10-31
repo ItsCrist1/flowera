@@ -29,15 +29,16 @@ type Stored = {
     names: Record<string, string>;
 };
 
-const EMPTY: Stored = { hostToken: null, state: null, stateAt: 0, events: [], seq: 0, names: {} };
+/** A fresh value every time: rooms in the same isolate must never share arrays or maps. */
+const empty = (): Stored => ({ hostToken: null, state: null, stateAt: 0, events: [], seq: 0, names: {} });
 
 export class Room extends Server<Env> {
     static options = { hibernate: true };
 
-    private data: Stored = EMPTY;
+    private data: Stored = empty();
 
     async onStart() {
-        this.data = { ...EMPTY, ...(await this.ctx.storage.get<Stored>("room")) };
+        this.data = { ...empty(), ...(await this.ctx.storage.get<Stored>("room")) };
     }
 
     private async save() {
@@ -47,7 +48,7 @@ export class Room extends Server<Env> {
 
     async onAlarm() {
         await this.ctx.storage.deleteAll();
-        this.data = EMPTY;
+        this.data = empty();
     }
 
     getConnectionTags(_conn: Connection, ctx: ConnectionContext) {

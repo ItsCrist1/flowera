@@ -14,7 +14,7 @@ export type ProviderDef = {
     icon: string;
     iconClass?: string;
     baseUrl: string;
-    /** Calls go through our /api/llm route because the provider doesn't allow browser CORS. */
+    /** Calls (and the model list) go through our /api/llm routes because the provider doesn't allow browser CORS. */
     viaProxy: boolean;
     defaultModel: string;
     rateLimitNote: string;
@@ -66,12 +66,12 @@ export const PROVIDER_ORDER: ProviderId[] = ["kilo", "llm7"];
 
 const modelCache = new Map<ProviderId, { at: number; models: ProviderModel[] }>();
 
-/** Live list of keyless models for a provider. Cached for 10 minutes. Both /models endpoints allow browser CORS. */
+/** Live list of keyless models for a provider. Cached for 10 minutes. Providers that block CORS go through /api/llm/models. */
 export async function fetchProviderModels(provider: ProviderId, signal?: AbortSignal): Promise<ProviderModel[]> {
     const hit = modelCache.get(provider);
     if (hit && Date.now() - hit.at < 10 * 60_000) return hit.models;
     const def = PROVIDERS[provider];
-    const res = await fetch(`${def.baseUrl}/models`, { signal });
+    const res = await fetch(def.viaProxy ? `/api/llm/models?provider=${def.id}` : `${def.baseUrl}/models`, { signal });
     if (!res.ok) throw new Error(`${def.name} model list failed (${res.status})`);
     const models = def.parseModels(await res.json());
     models.sort((a, b) => (a.id === def.defaultModel ? -1 : b.id === def.defaultModel ? 1 : a.label.localeCompare(b.label)));
