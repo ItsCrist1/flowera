@@ -76,6 +76,11 @@ The current panel and every form value are saved to `localStorage`, so a refresh
     (mouse hover or keyboard focus). If neither is, it shows a blend of the two tiles' colors.
   - Keyboard navigable (Tab and arrow keys). Mobile layout **[default]**: the same pattern scaled down, with tiles
     large enough to tap.
+  - _(polish, 2026-11-01)_ The pattern fills the whole page. Around the cursor the background lines bulge away a
+    little, like a lens, but stay pinned where they meet the four tiles, which never move. Clicking a tile (or
+    Enter/Space) goes straight to the next panel. Hovering or focusing a tile shows its description box on the
+    right, which leans slightly toward the cursor. That box is desktop-only. Tuning knobs: `WARP` and `LEAN` in
+    `components/setup/template-stage.tsx`.
 
 ### Panel 1 — Template configuration (varies by template)
 

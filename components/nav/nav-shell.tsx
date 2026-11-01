@@ -17,7 +17,8 @@ export function NavShell({ initial, topBar, sideBar, children }: {
 
     return (
         <SetOrientationContext value={setOrientation}>
-            <div className={cn("flex flex-1", orientation === "horizontal" ? "flex-col" : "flex-row")}>
+            {/* --top-bar-h lets full-height pages (panel 0) subtract the top bar. Keep in sync with TopBar's h-14. */}
+            <div className={cn("flex flex-1", orientation === "horizontal" ? "flex-col [--top-bar-h:3.5rem]" : "flex-row")}>
                 {orientation === "horizontal" ? topBar : sideBar}
                 <main className="flex-1 min-w-0 [view-transition-name:page]">{children}</main>
             </div>

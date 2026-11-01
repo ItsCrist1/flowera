@@ -1,12 +1,12 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { z } from "zod";
 import { ArrowLeft, ArrowRight, Check, Play, Radio } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { TemplatePicker } from "@/components/setup/template-picker";
+import { TemplateStage } from "@/components/setup/template-stage";
 import { PanelConfig } from "@/components/setup/panel-config";
 import { PanelSettings } from "@/components/setup/panel-settings";
 import { STORAGE_KEYS, useHydrated, useStoredValue, writeStorage } from "@/lib/storage";
@@ -31,12 +31,9 @@ export function SetupWizard() {
     const [state, setState] = useStoredValue(STORAGE_KEYS.setup, setupSchema, INITIAL);
     const [live] = useStoredValue(STORAGE_KEYS.hostSession, hostSessionSchema.nullable(), null);
 
-    const [hovered, setHovered] = useState<TemplateId | null>(null);
     const template = state.template;
     const config = state.config;
     const meta = template ? TEMPLATES[template] : null;
-    const preview = TEMPLATES[hovered ?? template ?? "hardcoded"];
-    const hasPreview = Boolean(hovered ?? template);
     const errors = useMemo(() => (config ? validateConfig(config) : []), [config]);
 
     function chooseTemplate(t: TemplateId) {
@@ -83,8 +80,8 @@ export function SetupWizard() {
 
     const hasLiveSession = live && live.status !== "ended";
 
-    return (
-        <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-6 md:px-8">
+    const header = (
+        <>
             {hasLiveSession && (
                 <div className="flex flex-wrap items-center justify-between gap-3 border border-primary/30 bg-primary/5 p-4 animate-in fade-in-0">
                     <span className="flex items-center gap-2 text-sm">
@@ -94,50 +91,27 @@ export function SetupWizard() {
                     <Button onClick={() => router.push("/host")}>Return to session <ArrowRight/></Button>
                 </div>
             )}
-
             <Stepper step={state.step} template={template} onStep={goTo}/>
+        </>
+    );
 
-            {state.step === 0 && (
-                <div className="flex flex-col gap-6 lg:flex-row">
-                    <div className="flex flex-1 flex-col gap-2">
-                        <div>
-                            <h1 className="text-2xl font-semibold">Start a session</h1>
-                            <p className="text-sm text-muted-foreground">Pick how questions get asked. You can change your mind later.</p>
-                        </div>
-                        <div className="aspect-[16/10] w-full">
-                            <TemplatePicker value={template} onChange={chooseTemplate} onConfirm={confirmTemplate} onHover={setHovered}/>
-                        </div>
+    if (state.step === 0) {
+        return (
+            <TemplateStage value={template} onConfirm={confirmTemplate} header={
+                <>
+                    {header}
+                    <div>
+                        <h1 className="text-2xl font-semibold">Start a session</h1>
+                        <p className="text-sm text-muted-foreground">Pick how questions get asked. You can change your mind later.</p>
                     </div>
-                    <aside className="flex w-full flex-col gap-4 border p-5 transition-colors duration-300 lg:w-80 lg:self-center"
-                           style={hasPreview ? { borderColor: preview.color } : undefined}>
-                        {hasPreview ? (
-                            <div key={preview.id} className="flex flex-col gap-4 animate-in fade-in-0 duration-200">
-                                <div className="flex flex-col gap-1">
-                                    <span className="text-xs uppercase tracking-widest" style={{ color: preview.color }}>
-                                        {template === preview.id ? "Selected" : "Template"}
-                                    </span>
-                                    <h2 className="text-xl font-semibold">{preview.name}</h2>
-                                    <p className="text-sm font-medium">{preview.tagline}</p>
-                                    <p className="text-sm text-muted-foreground">{preview.description}</p>
-                                </div>
-                                <ul className="flex flex-col gap-1.5 text-sm">
-                                    {preview.bullets.map(b => (
-                                        <li key={b} className="flex items-start gap-2">
-                                            <Check className="mt-0.5 size-4 shrink-0" style={{ color: preview.color }}/> {b}
-                                        </li>
-                                    ))}
-                                </ul>
-                                <Button className="h-11 text-sm text-white hover:opacity-90" style={{ background: preview.color }}
-                                        onClick={() => confirmTemplate(preview.id)}>
-                                    Continue with {preview.name} <ArrowRight/>
-                                </Button>
-                            </div>
-                        ) : (
-                            <p className="text-sm text-muted-foreground">Hover or tap a tile to see what each template does. Double-click or press Enter to continue.</p>
-                        )}
-                    </aside>
-                </div>
-            )}
+                </>
+            }/>
+        );
+    }
+
+    return (
+        <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-6 md:px-8">
+            {header}
 
             {state.step === 1 && config && meta && (
                 <PanelShell title={`Configure · ${meta.name}`} subtitle={meta.description} color={meta.color}>
