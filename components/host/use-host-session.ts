@@ -18,6 +18,13 @@ export type RoomStatus = "connecting" | "connected" | "offline" | "unconfigured"
 
 const TICK_MS = 250;
 const PERSIST_MS = 400;
+/** The most transcript the LLM sees at once (characters, newest kept). */
+const MAX_TRANSCRIPT_CHARS = 24_000;
+
+/** What goes to localStorage: everything except the live transcript, which stays in memory only (spec §9). */
+function forStorage(s: HostSession): HostSession {
+    return s.llm.transcript.length ? { ...s, llm: { ...s.llm, transcript: [] } } : s;
+}
 
 /*
  * Runs a live session in the teacher's browser around the pure engine in lib/session/engine.ts:
@@ -61,7 +68,7 @@ export function useHostSession() {
     const persist = useCallback((s: HostSession, immediate = false) => {
         const write = () => {
             persistTimer.current = null;
-            writeStorage(STORAGE_KEYS.hostSession, ref.current ?? s);
+            writeStorage(STORAGE_KEYS.hostSession, forStorage(ref.current ?? s));
         };
         if (immediate) {
             if (persistTimer.current) clearTimeout(persistTimer.current);
@@ -93,7 +100,7 @@ export function useHostSession() {
         // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time hydration from localStorage
         setSession(recovered);
         setLoaded(true);
-        if (recovered && recovered !== stored) writeStorage(STORAGE_KEYS.hostSession, recovered);
+        if (recovered && recovered !== stored) writeStorage(STORAGE_KEYS.hostSession, forStorage(recovered));
     }, []);
 
     const sessionId = session?.id ?? null;
@@ -197,7 +204,10 @@ export function useHostSession() {
             await asrRef.current?.flush();
             const snapshot = ref.current!;
             const pieces = snapshot.llm.transcript;
-            const text = pieces.map(p => (p.speaker !== null ? `[Speaker ${p.speaker}] ${p.text}` : p.text)).join("\n");
+            const lines = pieces.map(p => (p.speaker !== null ? `[Speaker ${p.speaker}] ${p.text}` : p.text));
+            // Keep the newest speech if a lot accumulated (e.g. "only when I ask" mode).
+            let text = lines.join("\n");
+            if (text.length > MAX_TRANSCRIPT_CHARS) text = `…${text.slice(text.length - MAX_TRANSCRIPT_CHARS)}`;
             const usedCount = pieces.length;
             const consume = (cur: HostSession): HostSession => ({
                 ...cur,
@@ -305,7 +315,7 @@ export function useHostSession() {
 
     useEffect(() => {
         const save = () => {
-            if (ref.current) writeStorage(STORAGE_KEYS.hostSession, { ...ref.current, heartbeatAt: Date.now() });
+            if (ref.current) writeStorage(STORAGE_KEYS.hostSession, forStorage({ ...ref.current, heartbeatAt: Date.now() }));
         };
         window.addEventListener("pagehide", save);
         return () => {

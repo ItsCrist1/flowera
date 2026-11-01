@@ -63,6 +63,7 @@ on your phone via your LAN IP) for students.
 
 | Script | What |
 |---|---|
+| `npm run dev:all` | Everything at once on this PC: room relay, app, GPU transcription (if set up). Ctrl+C stops all. |
 | `npm run check` | Type-check app + worker, lint, unit tests. Run before committing. |
 | `npm test` | Unit tests ([`tests/`](tests)): engine timing, queue, timeline, grading, anonymous exports, LLM JSON parsing |
 | `npm run party:dev` / `party:deploy` | Run or deploy the room relay |
