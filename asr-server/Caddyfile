@@ -1,0 +1,15 @@
+# Caddy terminates HTTPS for the ASR gateway and gets a Let's Encrypt certificate automatically.
+# Replace the hostname with yours; its DNS A record must point at your home's public IP,
+# and your router must forward TCP 80 and 443 to this PC.
+asr.floweratrustlens.tech {
+	encode gzip
+	request_body {
+		max_size 30MB
+	}
+	reverse_proxy 127.0.0.1:8787 {
+		transport http {
+			read_timeout 5m
+			write_timeout 5m
+		}
+	}
+}

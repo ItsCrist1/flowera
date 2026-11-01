@@ -1,7 +1,5 @@
-export default function Home() {
-  return (
-    <div>
+import { SetupWizard } from "@/components/setup/setup-wizard";
 
-    </div>
-  );
+export default function Home() {
+    return <SetupWizard/>;
 }

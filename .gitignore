@@ -28,3 +28,9 @@ yarn-error.log*
 
 *.tsbuildinfo
 next-env.d.ts
+
+# Template with variable names only (no secrets)
+!.env.example
+
+# Wrangler local dev state (Durable Object storage, bundles)
+.wrangler/

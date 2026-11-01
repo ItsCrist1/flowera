@@ -1,39 +1,90 @@
-# [Title]
+# Flowera
 
-This application gives teachers direct access to each individual child's understanding via efficient mini-surveys applied on-demand (or automatically) to each student, minimizing disruptions while maximizing mutual understanding between the student-teacher dynamic.
+Flowera lets a teacher check, in real time, how well the class understands the lesson. Short questions go to every
+student's phone or laptop during the lesson. The teacher writes the questions, or an LLM writes them from a live
+transcript of the lesson, or both. Results are class-level only: no points, no rankings, no per-student statistics.
 
-# Setup
+- **Teachers** pick a template, configure it, project a PIN/QR code, and run the lesson from a live dashboard.
+- **Students** join with the PIN or QR code, optionally pick a name, and answer multiple-choice, true/false or number
+  questions.
+- **Privacy:** audio is never stored. The LLM never sees names. Exports and the report shared with students are
+  anonymous. Everything else stays in the teacher's browser.
 
-To begin, the teacher establishes a session from one of the pre-made templates (or configures a custom one). Regardless of input, a  The default templates include:
+The full behavior is specified in [`docs/spec.md`](docs/spec.md); the build log is [`docs/plan.md`](docs/plan.md).
 
-1. Hardcoded - The teacher manually picks questions and answers and picks when to trigger them. They may do this immediately after the initial menu. *
+## Templates
 
-2. Automatic - The teacher selects an interval (eg 5 minutes) for which an LLM is asked based on transcripts whether to ask a question, if it decides so, it'll prompt all students and redirect all the data to the master device. This utilizes the master device's microphone.
+| Template | What happens |
+|---|---|
+| **Hardcoded** | You write every question. They go out on a timeline (one every X minutes) or when you press Send. |
+| **Automated** | The lesson is transcribed and an LLM writes questions from it: when it decides, at every interval, or on demand. Optional approval with editing. |
+| **Worriless** | Nothing to configure: the LLM decides when and what to ask. |
+| **Customized** | Your own questions on a timeline, plus LLM questions, with every setting exposed. |
 
-# Stack
-
-We use TypeScript on Next.JS with React, Tailwind and shadcn/ui. Both the master and user devices run in the browser.
-
-We will also utilize Postgres and Supabase alongside Vercel alongside a custom domain to host it.
-
-## Automatic
-
-We use `VibeVoice-ASR-Streaming-1.5B-Q8_K` hosted online to form a transcript, taking the master device's microphone as input. The generated transcript is later processed at the set interval and fed into an LLM that decides whether to trigger a mini-quiz or not via structured JSON output.
+## Architecture
 
 ```mermaid
-flowchart TD
-    subgraph MDS[Master Device Schema]
-
-        MD{Master Device} -- PIN --> D0[Device 0]
-        MD -- PIN --> D1[Device 1]
-        MD -- PIN --> D2[Device 2]
-
-        subgraph MDFLOW[Master Device Flow]
-            MD -- Microphone --> MODEL(Model)
-            MODEL -- Transcript --> LLM
-            LLM -- JSON Schema --> QUIZ(Mini-Quiz)
-            QUIZ --> USER(User Devices)
-            USER -- Answers --> MD
-        end
-    end
+flowchart LR
+    T[Teacher browser<br/>runs the session] <-- WebSocket --> R[Room relay<br/>Cloudflare Workers, party/]
+    S[Student browsers] <-- WebSocket --> R
+    T -- 60 s audio chunks --> G[ASR gateway + audio.cpp<br/>home GPU, asr-server/]
+    T -- direct --> L7[LLM7.io]
+    T -- /api/llm --> V[Next.js on Vercel]
+    V --> K[Kilo AI Gateway]
 ```
+
+| Part | Where | Code |
+|---|---|---|
+| Web app (teacher + student UI) | Vercel | `app/`, `components/`, `lib/` |
+| Session engine (pure state machine) | Teacher's browser | [`lib/session/engine.ts`](lib/session/engine.ts) |
+| Room relay | Cloudflare Workers + Durable Objects | [`party/`](party/README.md) |
+| Transcription | Home PC, RX 9070 XT, VibeVoice-ASR via audio.cpp | [`asr-server/`](asr-server/README.md) |
+| LLMs | Kilo AI Gateway (default) and LLM7.io: free, no API key | [`lib/llm/`](lib/llm) |
+| Storage | `localStorage` only (no accounts, no database) | [`lib/storage.ts`](lib/storage.ts) |
+
+If the GPU server is unreachable, the teacher's browser falls back to the Web Speech API (Chrome/Edge) and shows a
+warning.
+
+## Develop
+
+Requires Node 22+.
+
+```bash
+npm install
+cp .env.example .env.development.local     # then fill in ASR_TICKET_SECRET (see the file)
+
+npm run party:dev      # room relay on 127.0.0.1:8799
+npm run dev            # app on http://localhost:3000
+# optional, for GPU transcription: see asr-server/README.md
+```
+
+To try it, open http://localhost:3000 for the teacher and http://localhost:3000/join in another browser profile (or
+on your phone via your LAN IP) for students.
+
+| Script | What |
+|---|---|
+| `npm run dev:all` | Everything at once on this PC: room relay, app, GPU transcription (if set up). Ctrl+C stops all. |
+| `npm run check` | Type-check app + worker, lint, unit tests. Run before committing. |
+| `npm test` | Unit tests ([`tests/`](tests)): engine timing, queue, timeline, grading, anonymous exports, LLM JSON parsing |
+| `npm run party:dev` / `party:deploy` | Run or deploy the room relay |
+| `npm run asr:gateway` | Run the ASR gateway (needs `~/flowera-asr/gateway.env`) |
+
+This project uses **Next.js 16**, which differs from older versions. See [`AGENTS.md`](AGENTS.md) and the bundled docs
+in `node_modules/next/dist/docs/`.
+
+## Deploy
+
+See [`docs/deploy.md`](docs/deploy.md) for the step-by-step checklist (Cloudflare, Vercel, domain, home GPU).
+
+## Where to change things
+
+| To change… | Look at |
+|---|---|
+| Template names, colors, descriptions | [`lib/session/templates.ts`](lib/session/templates.ts) |
+| Defaults (time limit, check interval, cooldown…) | [`lib/session/types.ts`](lib/session/types.ts) (`.default(...)` values) |
+| How questions are timed, queued, graded | [`lib/session/engine.ts`](lib/session/engine.ts) (+ tests in `tests/engine.test.ts`) |
+| LLM prompts | [`lib/llm/questions.ts`](lib/llm/questions.ts) |
+| LLM providers / which models are offered | [`lib/llm/providers.ts`](lib/llm/providers.ts) |
+| Student consent text | [`components/student/join-view.tsx`](components/student/join-view.tsx) (`ConsentStep`) |
+| Chart colors | `--series-*` in [`app/globals.css`](app/globals.css) |
+| Navigation tabs | [`components/nav/nav-tabs.tsx`](components/nav/nav-tabs.tsx) |

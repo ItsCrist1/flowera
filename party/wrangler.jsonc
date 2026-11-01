@@ -1,0 +1,12 @@
+{
+  // Flowera room relay. Deploy with: npm run party:deploy  (see party/README.md)
+  "$schema": "../node_modules/wrangler/config-schema.json",
+  "name": "flowera-rooms",
+  "main": "src/server.ts",
+  "compatibility_date": "2026-10-01",
+  "durable_objects": {
+    "bindings": [{ "name": "Room", "class_name": "Room" }]
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["Room"] }],
+  "observability": { "enabled": true }
+}
