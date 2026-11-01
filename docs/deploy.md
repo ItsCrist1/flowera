@@ -38,14 +38,29 @@ Follow [`asr-server/README.md` → "Expose it to the internet"](../asr-server/RE
 CGNAT check → DNS `A` record for `asr.floweratrustlens.tech` → forward ports 80/443 → firewall → Caddy → add the
 production origin to `ALLOWED_ORIGINS` → set `ASR_GATEWAY_URL` in Vercel.
 
-Then start the services (or run them by hand for the demo):
+### How it's actually set up (2026-11-01)
+
+Ports 80/443 on the router already go to the home server (`192.168.0.100`), which runs Caddy in a rootless Podman
+container for other self-hosted sites. So instead of a second Caddy on the GPU PC:
+
+- **DNS** (Vercel DNS, since the domain uses Vercel's nameservers): `A asr → <home public IP>`.
+- **Home server** `~/.config/caddy/Caddyfile` has an `asr.floweratrustlens.tech` block with
+  `request_body { max_size 10MB }` and `reverse_proxy 192.168.0.200:8787`. Reload with
+  `podman exec caddy caddy reload --config /etc/caddy/Caddyfile --adapter caddyfile`.
+- **GPU PC** (`192.168.0.200`): the gateway listens on `0.0.0.0:8787` (`HOST=0.0.0.0` in `~/flowera-asr/gateway.env`),
+  and firewalld only lets `192.168.0.100` reach 8787 from the LAN. `ALLOWED_ORIGINS` includes both production origins.
+
+The services are installed as systemd user units but **not enabled at boot**, because the model holds ~11 GB of VRAM.
+Start them before a lesson and stop them afterwards:
 
 ```bash
-cp asr-server/systemd/*.service ~/.config/systemd/user/ && systemctl --user daemon-reload
-systemctl --user enable --now flowera-audiocpp flowera-asr-gateway
+systemctl --user start flowera-audiocpp flowera-asr-gateway   # or: stop
 ```
 
-The PC only has to be on while Flowera is in use. When it's off, teachers get the browser fallback and a warning.
+When they're off, teachers get the browser fallback and a warning.
+
+> Testing from inside the home network: the router doesn't loop the public IP back, and Chrome blocks a public site
+> from calling a LAN address. Test from mobile data, or from another network.
 
 ## 4. Smoke test (≈5 min)
 
@@ -62,6 +77,9 @@ The PC only has to be on while Flowera is in use. When it's off, teachers get th
 - The AI path with real audio: a Romanian recording played into a fake microphone → GPU transcription → Kilo
   (`kilo-auto/free`) → approval card → question on the student's phone, about 80 s after start.
 - End-of-session AI analysis through Kilo.
+- Production (same day): full session against www.floweratrustlens.tech, and GPU transcription through the public
+  `asr` address. `kilo-auto/free` had started rejecting JSON mode, so the client now retries without
+  `response_format`; that fix was verified locally against the real Kilo API.
 - LLM7.io's keyless tier answered once, then returned "Daily token quota exceeded"; that's why Kilo is the default.
 
 **Not verified** (needs your accounts or a real classroom): the deployed Cloudflare/Vercel setup, access from outside

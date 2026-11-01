@@ -23,31 +23,41 @@ export async function chatCompletion(opts: {
     signal?: AbortSignal;
 }): Promise<string> {
     const def = PROVIDERS[opts.provider];
-    const body = {
-        model: opts.model,
-        messages: opts.messages,
-        max_tokens: opts.maxTokens ?? 4000,
-        temperature: opts.temperature ?? 0.4,
-        ...(opts.json ? { response_format: { type: "json_object" } } : {}),
-    };
-
     const url = def.viaProxy ? `/api/llm?provider=${def.id}` : `${def.baseUrl}/chat/completions`;
     const signal = opts.signal ? AbortSignal.any([opts.signal, AbortSignal.timeout(120_000)]) : AbortSignal.timeout(120_000);
 
-    let res: Response;
-    try {
-        res = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body), signal });
-    } catch (e) {
-        throw new LlmError(e instanceof Error && e.name === "TimeoutError" ? `${def.name} took too long to answer.` : `Could not reach ${def.name}.`);
-    }
-
-    const text = await res.text();
-    if (!res.ok) {
-        let detail = text.slice(0, 300);
+    const send = async (jsonMode: boolean) => {
+        const body = {
+            model: opts.model,
+            messages: opts.messages,
+            max_tokens: opts.maxTokens ?? 4000,
+            temperature: opts.temperature ?? 0.4,
+            ...(jsonMode ? { response_format: { type: "json_object" } } : {}),
+        };
+        let res: Response;
         try {
-            const j = JSON.parse(text);
-            detail = j?.error?.message ?? j?.error ?? detail;
-        } catch { /* keep raw */ }
+            res = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body), signal });
+        } catch (e) {
+            throw new LlmError(e instanceof Error && e.name === "TimeoutError" ? `${def.name} took too long to answer.` : `Could not reach ${def.name}.`);
+        }
+        const text = await res.text();
+        let detail = text.slice(0, 300);
+        if (!res.ok) {
+            try {
+                const j = JSON.parse(text);
+                detail = j?.error?.message ?? j?.error ?? detail;
+            } catch { /* keep raw */ }
+        }
+        return { res, text, detail: String(detail) };
+    };
+
+    let { res, text, detail } = await send(!!opts.json);
+    // Some models (and "auto" routers that pick one) reject JSON mode. The prompt asks for JSON
+    // anyway and extractJson() copes with plain text, so retry once without it.
+    if (opts.json && res.status === 400 && /structured output|response_format|json/i.test(detail))
+        ({ res, text, detail } = await send(false));
+
+    if (!res.ok) {
         if (res.status === 429) throw new LlmError(`${def.name} limit reached: ${detail} ${def.rateLimitNote}`.trim(), 429);
         throw new LlmError(`${def.name} error ${res.status}: ${detail}`, res.status);
     }

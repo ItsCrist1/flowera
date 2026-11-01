@@ -10,7 +10,9 @@ pids=()
 cleanup() { echo; echo "Stopping…"; kill "${pids[@]}" 2>/dev/null || true; wait 2>/dev/null || true; }
 trap cleanup EXIT INT TERM
 
-if [[ -x "$ASR_HOME/audio.cpp/build/linux-hip-release/bin/audiocpp_server" && -f "$ASR_HOME/gateway.env" ]]; then
+if systemctl --user is-active --quiet flowera-asr-gateway 2>/dev/null; then
+  echo "GPU transcription already running as a systemd user service; reusing it."
+elif [[ -x "$ASR_HOME/audio.cpp/build/linux-hip-release/bin/audiocpp_server" && -f "$ASR_HOME/gateway.env" ]]; then
   (cd "$ASR_HOME" && ./audio.cpp/build/linux-hip-release/bin/audiocpp_server --config audiocpp.json 2>&1 | sed 's/^/[audiocpp] /') & pids+=($!)
   (set -a; . "$ASR_HOME/gateway.env"; set +a; node asr-server/gateway.mjs 2>&1 | sed 's/^/[gateway] /') & pids+=($!)
 else

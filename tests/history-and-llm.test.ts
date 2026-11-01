@@ -1,6 +1,6 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { anonymize, exportCsv, exportJson, importJson } from "@/lib/session/history";
-import { extractJson } from "@/lib/llm/client";
+import { chatCompletion, extractJson } from "@/lib/llm/client";
 import { isCorrect, slicesFor } from "@/lib/session/questions";
 import type { HistoryEntry, Question } from "@/lib/session/types";
 
@@ -75,5 +75,24 @@ describe("extractJson tolerates model chatter", () => {
 
     it("throws when there is no JSON", () => {
         expect(() => extractJson("no idea")).toThrow();
+    });
+});
+
+describe("chatCompletion", () => {
+    afterEach(() => vi.unstubAllGlobals());
+
+    it("retries without JSON mode when the model rejects structured output", async () => {
+        const bodies: Record<string, unknown>[] = [];
+        vi.stubGlobal("fetch", vi.fn(async (_url: string, init: RequestInit) => {
+            const body = JSON.parse(String(init.body));
+            bodies.push(body);
+            if (body.response_format)
+                return new Response(JSON.stringify({ error: { message: "This model does not support structured output." } }), { status: 400 });
+            return new Response(JSON.stringify({ choices: [{ message: { content: "{\"ok\":true}" } }] }), { status: 200 });
+        }));
+        const out = await chatCompletion({ provider: "kilo", model: "kilo-auto/free", messages: [{ role: "user", content: "hi" }], json: true });
+        expect(out).toBe("{\"ok\":true}");
+        expect(bodies).toHaveLength(2);
+        expect(bodies[1].response_format).toBeUndefined();
     });
 });
