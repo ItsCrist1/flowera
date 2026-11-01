@@ -114,7 +114,7 @@ export function SetupWizard() {
             {header}
 
             {state.step === 1 && config && meta && (
-                <PanelShell title={`Configure · ${meta.name}`} subtitle={meta.description} color={meta.color}>
+                <PanelShell title={<>Configure · <span data-panel-name>{meta.name}</span></>} subtitle={meta.description} color={meta.color}>
                     <PanelConfig config={config} onChange={updateConfig}/>
                 </PanelShell>
             )}
@@ -175,14 +175,17 @@ function Stepper({ step, template, onStep }: { step: number; template: TemplateI
     );
 }
 
-function PanelShell({ title, subtitle, color, children }: { title: string; subtitle: string; color: string; children: React.ReactNode }) {
+function PanelShell({ title, subtitle, color, children }: { title: React.ReactNode; subtitle: string; color: string; children: React.ReactNode }) {
+    // The heading stays still: coming from panel 0, the chosen tile morphs into it (see tile-morph.ts).
     return (
-        <div className="flex flex-col gap-6 animate-in fade-in-0 slide-in-from-bottom-2 duration-300">
-            <div className="flex flex-col gap-1 border-l-4 pl-4" style={{ borderColor: color }}>
+        <div className="flex flex-col gap-6">
+            <div data-panel-heading className="flex flex-col gap-1 border-l-4 pl-4" style={{ borderColor: color }}>
                 <h1 className="text-2xl font-semibold">{title}</h1>
                 <p className="text-sm text-muted-foreground">{subtitle}</p>
             </div>
-            {children}
+            <div data-panel-body className="flex flex-col gap-6 animate-in fade-in-0 slide-in-from-bottom-2 duration-300 [animation-delay:120ms] [animation-fill-mode:both]">
+                {children}
+            </div>
         </div>
     );
 }

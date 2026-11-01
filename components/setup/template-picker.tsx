@@ -89,7 +89,7 @@ export function TemplatePicker({ value, onConfirm, onPreview, svgRef }: {
                 const isActive = active === t;
                 const isSelected = value === t;
                 return (
-                    <g key={t} id={`tile-${t}`} role="radio" aria-checked={isSelected} aria-label={`${meta.name}: ${meta.tagline}`}
+                    <g key={t} id={`tile-${t}`} data-tile={t} role="radio" aria-checked={isSelected} aria-label={`${meta.name}: ${meta.tagline}`}
                        tabIndex={isSelected || (value === null && idx === 0) ? 0 : -1}
                        className="cursor-pointer outline-none [animation:tile-in_500ms_cubic-bezier(.2,.8,.2,1)_both]"
                        style={{ animationDelay: `${120 + idx * 70}ms`, transformOrigin: `${centerOf(t).x}px ${centerOf(t).y}px` }}
@@ -110,7 +110,7 @@ export function TemplatePicker({ value, onConfirm, onPreview, svgRef }: {
             <g strokeLinecap="round" strokeWidth={7} pointerEvents="none">
                 {TEMPLATE_ORDER.flatMap(t => outerEdges(t).map(([p, q], k) => {
                     const a = pt(p), b = pt(q);
-                    return <line key={`${t}-${k}`} x1={a.x} y1={a.y} x2={b.x} y2={b.y} stroke={TEMPLATES[t].color}
+                    return <line key={`${t}-${k}`} data-tile={t} x1={a.x} y1={a.y} x2={b.x} y2={b.y} stroke={TEMPLATES[t].color}
                                  className="transition-opacity duration-300" opacity={active && active !== t ? 0.55 : 1}/>;
                 }))}
             </g>
@@ -133,7 +133,7 @@ export function TemplatePicker({ value, onConfirm, onPreview, svgRef }: {
                     const c = centerOf(t);
                     const isActive = active === t;
                     return (
-                        <g key={t} className="transition-transform duration-300"
+                        <g key={t} data-tile={t} className="transition-transform duration-300"
                            style={{ transform: isActive ? "scale(1.06)" : "scale(1)", transformOrigin: `${c.x}px ${c.y}px` }}>
                             <text x={c.x} y={c.y} textAnchor="middle" dominantBaseline="middle"
                                   className={cn("fill-foreground font-mono font-semibold transition-opacity", !isActive && active && "opacity-70")}

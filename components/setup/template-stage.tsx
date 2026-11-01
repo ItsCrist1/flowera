@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { ArrowRight, Check } from "lucide-react";
 import { TemplatePicker } from "@/components/setup/template-picker";
+import { morphTileIntoPanel } from "@/components/setup/tile-morph";
 import { distanceToTiles, E1, E2, ORIGIN, toLattice, type Point } from "@/components/setup/lattice";
 import { TEMPLATES } from "@/lib/session/templates";
 import type { TemplateId } from "@/lib/session/types";
@@ -184,6 +185,12 @@ export function TemplateStage({ value, onConfirm, header }: {
 
     const meta = preview ? TEMPLATES[preview] : null;
 
+    function confirm(t: TemplateId) {
+        const stage = stageRef.current, svg = svgRef.current;
+        if (!stage || !svg) return onConfirm(t);
+        morphTileIntoPanel({ stage, svg, template: t, color: TEMPLATES[t].color, label: TEMPLATES[t].name, commit: () => onConfirm(t) });
+    }
+
     return (
         <div ref={stageRef}
              className="relative isolate flex min-h-[calc(100dvh-var(--top-bar-h,0px))] flex-col overflow-hidden lg:h-[calc(100dvh-var(--top-bar-h,0px))]">
@@ -194,7 +201,7 @@ export function TemplateStage({ value, onConfirm, header }: {
 
             <div className="grid min-h-0 flex-1 grid-cols-1 items-center gap-4 px-4 pb-6 md:px-8 lg:grid-cols-[minmax(0,1fr)_20rem] lg:gap-8">
                 <div className="mx-auto aspect-[11/7] w-full max-w-[1000px] lg:h-full lg:max-h-[640px] lg:w-auto lg:max-w-full">
-                    <TemplatePicker value={value} onConfirm={onConfirm} onPreview={setPreview} svgRef={svgRef}/>
+                    <TemplatePicker value={value} onConfirm={confirm} onPreview={setPreview} svgRef={svgRef}/>
                 </div>
 
                 {/* Desktop only: there is no hover on touch screens, and a tap goes straight to the next panel. */}
