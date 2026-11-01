@@ -1,0 +1,14 @@
+# audio.cpp server with VibeVoice-ASR on the GPU. User service: systemctl --user enable --now flowera-audiocpp
+[Unit]
+Description=Flowera ASR - audio.cpp (VibeVoice-ASR)
+After=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=%h/flowera-asr
+ExecStart=%h/flowera-asr/audio.cpp/build/linux-hip-release/bin/audiocpp_server --config %h/flowera-asr/audiocpp.json
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=default.target

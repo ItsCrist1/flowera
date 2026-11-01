@@ -77,7 +77,7 @@ export function PanelSettings({ config, onChange }: { config: SessionConfig; onC
                     <CollapsibleTrigger className="group flex w-full cursor-pointer items-center justify-between p-5 text-left">
                         <span className="flex flex-col gap-1">
                             <span className="text-sm font-semibold uppercase tracking-wider">Advanced</span>
-                            <span className="text-xs text-muted-foreground">Cooldown and approval timeout.</span>
+                            <span className="text-xs text-muted-foreground">{config.template === "worriless" ? "Cooldown between AI questions." : "Cooldown and approval timeout."}</span>
                         </span>
                         <ChevronDown className="size-4 transition-transform group-data-[panel-open]:rotate-180"/>
                     </CollapsibleTrigger>
@@ -89,7 +89,7 @@ export function PanelSettings({ config, onChange }: { config: SessionConfig; onC
                                 <span className="text-sm text-muted-foreground">min</span>
                             </div>
                         </Field>
-                        <Field label="If I don't answer an approval request"
+                        {config.template !== "worriless" && <Field label="If I don't answer an approval request"
                                hint={approvalApplies ? undefined : "Only applies when “Ask me first” is on (panel 1)."}>
                             <div className="flex flex-wrap items-center gap-2">
                                 <Select value={config.llm.approvalTimeout.mode} disabled={!approvalApplies}
@@ -112,7 +112,7 @@ export function PanelSettings({ config, onChange }: { config: SessionConfig; onC
                                     </>
                                 )}
                             </div>
-                        </Field>
+                        </Field>}
                     </CollapsibleContent>
                 </Collapsible>
             )}

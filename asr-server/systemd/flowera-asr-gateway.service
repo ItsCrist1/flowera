@@ -1,0 +1,16 @@
+# Flowera ASR gateway (ticket check + queue). User service: systemctl --user enable --now flowera-asr-gateway
+# Secrets live in ~/flowera-asr/gateway.env (ASR_TICKET_SECRET=..., ALLOWED_ORIGINS=https://...).
+[Unit]
+Description=Flowera ASR - gateway
+After=flowera-audiocpp.service
+Wants=flowera-audiocpp.service
+
+[Service]
+Type=simple
+EnvironmentFile=%h/flowera-asr/gateway.env
+ExecStart=/usr/bin/node %h/WebstormProjects/flowera/asr-server/gateway.mjs
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=default.target

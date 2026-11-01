@@ -32,42 +32,46 @@ changes; see `AGENTS.md`).
 - [x] Everything persisted to `localStorage`.
 
 ## Phase 4 — Realtime room and joining
-- [ ] A `party/` partyserver room: host token, presence, snapshot, message types (spec §11).
-- [ ] Teacher lobby: PIN and QR code.
-- [ ] Student join: PIN/QR, consent, default name, reconnect via client ID, Leave.
-- [ ] Tested locally with `wrangler dev` and several browser tabs.
+- [x] A `party/` partyserver room: host token, presence, snapshot, message types (spec §11).
+- [x] Teacher lobby: PIN and QR code.
+- [x] Student join: PIN/QR, consent, default name, reconnect via client ID, Leave.
+- [x] Tested locally with `wrangler dev` and several browser tabs.
 
 ## Phase 5 — Live session core (no AI yet)
-- [ ] Question open/close, student answering, Not answered, early close.
-- [ ] Queue, timeline, manual send.
-- [ ] Pause/resume (manual and on teacher disconnect) freezing all timers.
-- [ ] The Show answers toggle, live pie charts, the trends chart, the students panel, the color-coded event log.
-- [ ] Student idle screen, their own history, late joiners.
+- [x] Question open/close, student answering, Not answered, early close.
+- [x] Queue, timeline, manual send.
+- [x] Pause/resume (manual and on teacher disconnect) freezing all timers.
+- [x] The Show answers toggle, live pie charts, the trends chart, the students panel, the color-coded event log.
+- [x] Student idle screen, their own history, late joiners.
 
 ## Phase 6 — LLM
-- [ ] Provider and model pickers with icons (copied from trustlens); live keyless-model lists.
-- [ ] LLM7 called directly from the browser; Kilo via a locked-down `/api/llm` proxy.
-- [ ] The check loop: interval, skip rule, transcript window, cooldown, the three trigger modes, Generate now.
-- [ ] Tolerant JSON parsing with zod validation and one retry.
-- [ ] The approval card with editing and the timeout policy.
+- [x] Provider and model pickers with icons (copied from trustlens); live keyless-model lists.
+- [x] LLM7 called directly from the browser; Kilo via a locked-down `/api/llm` proxy.
+- [x] The check loop: interval, skip rule, transcript window, cooldown, the three trigger modes, Generate now.
+- [x] Tolerant JSON parsing with zod validation and one retry.
+- [x] The approval card with editing and the timeout policy.
 
 ## Phase 7 — ASR client and gateway
-- [ ] Teacher mic capture (AudioWorklet → 16 kHz PCM16), in-memory chunks, sending.
-- [ ] The `asr-server/` gateway: ticket check, FIFO queue to audio.cpp, `/health`.
-- [ ] The `/api/asr-ticket` route (HMAC with a shared secret).
-- [ ] Web Speech fallback with a visible warning and automatic switch-back.
-- [ ] A Caddyfile, a systemd unit, and `asr-server/README.md` covering port forwarding, DDNS and CGNAT checks.
+- [x] Teacher mic capture (AudioWorklet → 16 kHz PCM16), in-memory chunks, sending.
+- [x] The `asr-server/` gateway: ticket check, FIFO queue to audio.cpp, `/health`.
+- [x] The `/api/asr-ticket` route (HMAC with a shared secret).
+- [x] Web Speech fallback with a visible warning and automatic switch-back.
+- [x] A Caddyfile, a systemd unit, and `asr-server/README.md` covering port forwarding, DDNS and CGNAT checks.
 
 ## Phase 8 — End of session
-- [ ] Summary screen, Share report to students, the optional LLM analysis (anonymous aggregates only).
-- [ ] History page: view, delete, export JSON/CSV (no names), import JSON.
+- [x] Summary screen, Share report to students, the optional LLM analysis (anonymous aggregates only).
+- [x] History page: view, delete, export JSON/CSV (no names), import JSON.
 
 ## Phase 9 — Polish and verification
-- [ ] An end-to-end run with a teacher plus several student tabs, covering pause, reconnects and an ASR outage.
-- [ ] Lint and build clean; update `README.md` to match the spec.
+- [x] An end-to-end run with a teacher plus several student tabs, covering pause, reconnects and an ASR outage.
+      (ASR outage → Web Speech fallback is implemented but not exercised automatically; see deploy.md.)
+- [x] Unit tests for the engine, exports and LLM parsing (`npm test`).
+- [x] Lint and build clean; update `README.md` to match the spec.
 
 ## Needs you (can't be done unattended)
+
+Step by step in [deploy.md](deploy.md).
 - [ ] A Cloudflare account and the first `wrangler deploy` of the room.
 - [ ] Router port forwarding (443 → the PC), a DNS record and DDNS for the ASR hostname, and a CGNAT check.
 - [ ] A Vercel project, environment variables (the ASR ticket secret, the room URL), and pointing `floweratrustlens.tech`.
-- [ ] Keeping the PC awake while running unattended overnight.
+- [x] Keeping the PC awake while running unattended overnight (done with `systemd-inhibit` during the build).

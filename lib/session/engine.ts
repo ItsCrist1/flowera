@@ -78,8 +78,7 @@ export function recoverAfterReload(s: HostSession, now: number): HostSession {
     if (s.status !== "running" || s.resumedAt === null) return s;
     // Only count active time up to the last moment the tab was known to be alive.
     const aliveUntil = Math.min(now, Math.max(s.heartbeatAt, s.resumedAt));
-    const frozen: HostSession = { ...s, resumedAt: aliveUntil };
-    return pause(frozen, aliveUntil, "disconnect");
+    return pause(s, aliveUntil, "disconnect");
 }
 
 export function end(s: HostSession, now: number): HostSession {

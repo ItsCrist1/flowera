@@ -11,7 +11,8 @@
     "party:deploy": "wrangler deploy -c party/wrangler.jsonc",
     "party:check": "tsc -p party/tsconfig.json",
     "asr:gateway": "node asr-server/gateway.mjs",
-    "check": "tsc --noEmit && npm run party:check && eslint"
+    "check": "tsc --noEmit && npm run party:check && eslint && vitest run",
+    "test": "vitest run"
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",
@@ -38,7 +39,7 @@
     "@tailwindcss/postcss": "^4.3.3",
     "@tailwindcss/turbopack": "^4",
     "@tailwindcss/typography": "^0.5.20",
-    "@types/node": "^20",
+    "@types/node": "^22.20.5",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
@@ -47,6 +48,7 @@
     "postcss": "^8.5.32",
     "tailwindcss": "^4.3.3",
     "typescript": "^5",
+    "vitest": "^5.0.5",
     "wrangler": "^4.156.0"
   }
 }

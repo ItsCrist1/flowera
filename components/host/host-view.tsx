@@ -199,11 +199,13 @@ function Dashboard({ host, session }: { host: Host; session: HostSession }) {
                         <div className="flex flex-col items-center gap-2 border border-dashed p-10 text-center">
                             <p className="text-lg">No question open</p>
                             <p className="text-sm text-muted-foreground">
-                                {nextTimeline !== null ? `Next timeline question in ${paused ? "— (paused)" : formatClock(nextTimeline)}. ` : ""}
-                                {bank ? "Send one from your questions below" : ""}
-                                {bank && llm ? ", or " : ""}
-                                {llm ? "generate one from the lesson so far" : ""}
-                                {bank || llm ? "." : ""}
+                                {[
+                                    nextTimeline !== null ? `Next timeline question in ${paused ? "— (paused)" : formatClock(nextTimeline)}.` : null,
+                                    bank && llm ? "Send one of your questions below, or generate one from the lesson so far."
+                                        : bank ? "Send one of your questions below."
+                                            : llm ? "The AI will ask when the time is right. You can also generate one now, or send a quick question."
+                                                : null,
+                                ].filter(Boolean).join(" ")}
                             </p>
                         </div>
                     )}

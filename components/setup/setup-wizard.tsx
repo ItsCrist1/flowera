@@ -133,7 +133,7 @@ export function SetupWizard() {
                                 </Button>
                             </div>
                         ) : (
-                            <p className="text-sm text-muted-foreground">Hover or select a tile to see what each template does. Double-click or press Enter to continue.</p>
+                            <p className="text-sm text-muted-foreground">Hover or tap a tile to see what each template does. Double-click or press Enter to continue.</p>
                         )}
                     </aside>
                 </div>
@@ -183,7 +183,7 @@ function Stepper({ step, template, onStep }: { step: number; template: TemplateI
                 const done = i < step && !disabled;
                 return (
                     <li key={label} className="flex items-center gap-2">
-                        {i > 0 && <span className="h-px w-6 bg-border sm:w-10"/>}
+                        {i > 0 && <span className="h-px w-4 bg-border sm:w-10"/>}
                         <button type="button" disabled={disabled || i === step} onClick={() => onStep(i)}
                                 className={cn("flex cursor-pointer items-center gap-2 px-2 py-1 transition-colors disabled:cursor-default",
                                     i === step ? "bg-accent font-semibold" : "text-muted-foreground hover:text-foreground",
@@ -192,7 +192,7 @@ function Stepper({ step, template, onStep }: { step: number; template: TemplateI
                             <span className={cn("grid size-5 place-items-center border text-[10px]", (done || i === step) && "border-foreground")}>
                                 {done ? <Check className="size-3"/> : i + 1}
                             </span>
-                            {label}
+                            <span className={cn(i !== step && "max-sm:hidden")}>{label}</span>
                         </button>
                     </li>
                 );

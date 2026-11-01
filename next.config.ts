@@ -1,24 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-    images: {
-        remotePatterns: [
-            {
-                protocol: "https",
-                hostname: "lh3.googleusercontent.com"
-            },
-
-            {
-                protocol: "https",
-                hostname: "avatars.githubusercontent.com"
-            },
-
-            {
-                protocol: "https",
-                hostname: "cdn.discordapp.com"
-            }
-        ]
-    }
+    // The Next.js dev indicator overlaps the student UI on phones; keep it out of the way.
+    devIndicators: { position: "bottom-right" },
 };
 
 export default nextConfig;
